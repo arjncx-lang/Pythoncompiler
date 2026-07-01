@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Edge-to-edge, no title bar, dark status/nav bars -->
+    <style name="Theme.PythonCompiler" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/vscode_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

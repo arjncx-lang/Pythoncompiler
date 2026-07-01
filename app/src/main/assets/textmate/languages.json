@@ -1,0 +1,8 @@
+[
+  {
+    "name": "python",
+    "scopeName": "source.python",
+    "grammar": "python/python.tmLanguage.json",
+    "languageConfiguration": "python/language-configuration.json"
+  }
+]
