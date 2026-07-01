@@ -18,8 +18,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            // ABIs to bundle CPython for. Covers all Android device architectures.
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            // ABIs to bundle CPython for. Chaquopy's Python 3.13 only ships arm64-v8a and
+            // x86_64 builds (no 32-bit armeabi-v7a/x86) — these two cover effectively all
+            // real Android devices (32-bit-only devices require API < 21 anyway).
+            abiFilters += listOf("arm64-v8a", "x86_64")
         }
     }
 
