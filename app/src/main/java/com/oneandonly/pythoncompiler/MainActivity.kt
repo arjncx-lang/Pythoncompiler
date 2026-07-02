@@ -41,6 +41,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Backspace
+import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.filled.Close
@@ -49,7 +51,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.outlined.Backspace
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -58,7 +59,6 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.NoteAdd
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -356,10 +356,10 @@ fun PyPhoneApp(vm: EditorViewModel = viewModel()) {
                     onDismissRequest = { menuOpen = false },
                     modifier = Modifier.background(p.surface)
                 ) {
-                    MenuRow("New file", Icons.Outlined.NoteAdd, p) {
+                    MenuRow("New file", Icons.AutoMirrored.Outlined.NoteAdd, p) {
                         editor?.setText(""); vm.clearOutput(); menuOpen = false
                     }
-                    MenuRow("Clear code", Icons.Outlined.Backspace, p) {
+                    MenuRow("Clear code", Icons.AutoMirrored.Outlined.Backspace, p) {
                         editor?.setText(""); menuOpen = false
                     }
                     MenuRow("Copy code", Icons.Outlined.ContentCopy, p) {
