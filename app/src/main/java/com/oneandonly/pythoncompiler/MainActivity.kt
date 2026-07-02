@@ -70,7 +70,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -96,8 +95,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
@@ -111,6 +114,8 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import io.github.rosemoe.sora.widget.style.builtin.HandleStyleDrop
 import org.eclipse.tm4e.core.registry.IGrammarSource
 import org.eclipse.tm4e.core.registry.IThemeSource
+import androidx.compose.runtime.DisposableEffect
+import java.io.File
 
 // ── Theme palettes ───────────────────────────────────────────────
 private data class Palette(
@@ -157,7 +162,7 @@ private enum class AppTheme(
 ) {
     VSCODE_DARK("vscodeDark", "VS Code Dark", "dark_plus", VsCodeDarkPalette, 0xFF007ACC.toInt()),
     VSCODE_LIGHT("vscodeLight", "VS Code Light", "light_plus", VsCodeLightPalette, 0xFF007ACC.toInt()),
-    FUNKY("funky", "Funky", "dark_plus", FunkyPalette, 0xFFFF2E63.toInt());
+    FUNKY("funky", "Funky", "funky", FunkyPalette, 0xFFFF2E63.toInt());
 
     companion object {
         fun fromKey(key: String?): AppTheme = entries.firstOrNull { it.key == key } ?: FUNKY
@@ -199,6 +204,7 @@ class MainActivity : ComponentActivity() {
         try {
             loadTheme(themes, "dark_plus", dark = true)
             loadTheme(themes, "light_plus", dark = false)
+            loadTheme(themes, "funky", dark = true)
             themes.setTheme("dark_plus")
 
             val grammarSource = assets.open("textmate/python/python.tmLanguage.json").use { g ->
@@ -236,6 +242,25 @@ private val SYM_KEYS = listOf(
     SymKey("//", "//"), SymKey("#", "#"), SymKey("_", "_"),
     SymKey(",", ","), SymKey(".", ".")
 )
+
+// ── Autosave ─────────────────────────────────────────────────────
+private fun autosaveFile(context: Context) = File(context.filesDir, "autosave.py")
+
+private fun saveCode(context: Context, editor: CodeEditor?) {
+    val text = editor?.text?.toString() ?: return
+    try {
+        autosaveFile(context).writeText(text)
+    } catch (e: Exception) {
+        android.util.Log.e("PyPhone", "autosave failed: ${e.message}", e)
+    }
+}
+
+/** Last autosaved code, or null on first run / read failure. */
+private fun loadSavedCode(context: Context): String? = try {
+    autosaveFile(context).takeIf { it.exists() }?.readText()
+} catch (e: Exception) {
+    null
+}
 
 private fun copyAllCode(context: Context, editor: CodeEditor?) {
     val text = editor?.text?.toString() ?: return
@@ -280,6 +305,16 @@ fun PyPhoneApp(vm: EditorViewModel = viewModel()) {
 
     LaunchedEffect(theme, editor) {
         editor?.let { applyEditorTheme(it, theme) }
+    }
+
+    // Autosave immediately when the app goes to the background.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(editor, lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) saveCode(context, editor)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Column(
@@ -409,7 +444,13 @@ fun PyPhoneApp(vm: EditorViewModel = viewModel()) {
                         } catch (e: Exception) {
                             android.util.Log.e("PyPhone", "editor lang failed: ${e.message}", e)
                         }
-                        setText(INITIAL_CODE)
+                        setText(loadSavedCode(ctx) ?: INITIAL_CODE)
+                        // Debounced autosave: write 1.5s after the last edit.
+                        val saveRunnable = Runnable { saveCode(ctx, this) }
+                        subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
+                            removeCallbacks(saveRunnable)
+                            postDelayed(saveRunnable, 1500)
+                        }
                         editor = this
                         applyEditorTheme(this, theme)
                     }
@@ -645,16 +686,14 @@ private fun OutputHeader(
 @Composable
 private fun OutputBody(output: List<OutSeg>, p: Palette, modifier: Modifier) {
     val scroll = rememberScrollState()
-    val text by remember(output, p) {
-        derivedStateOf {
-            buildAnnotatedString {
-                if (output.isEmpty()) {
-                    withStyle(SpanStyle(color = p.dim)) { append("Run code to see output here.") }
-                } else {
-                    for (seg in output) {
-                        withStyle(SpanStyle(color = if (seg.isErr) p.red else p.text)) {
-                            append(seg.text)
-                        }
+    val text = remember(output, p) {
+        buildAnnotatedString {
+            if (output.isEmpty()) {
+                withStyle(SpanStyle(color = p.dim)) { append("Run code to see output here.") }
+            } else {
+                for (seg in output) {
+                    withStyle(SpanStyle(color = if (seg.isErr) p.red else p.text)) {
+                        append(seg.text)
                     }
                 }
             }
