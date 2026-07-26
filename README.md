@@ -1,6 +1,6 @@
 # PyPhone
 
-**Run Python 3.13 on your phone** — a native Android code editor with an embedded CPython runtime.
+**Run Python 3.13 on your phone** - a native Android code editor with an embedded CPython runtime.
 
 Write Python in a real editor (syntax highlighting, themes, undo/redo), hit Run, and see output instantly. `input()` works interactively. Stop long-running scripts anytime.
 
@@ -17,21 +17,21 @@ Write Python in a real editor (syntax highlighting, themes, undo/redo), hit Run,
 
 ## Features
 
-- **Embedded CPython 3.13** — real interpreter on-device, not a remote sandbox
-- **Native code editor** — Sora Editor with TextMate Python grammar and JetBrains Mono
-- **Themes** — VS Code Dark, VS Code Light, and Funky (rose accent)
-- **Run / Stop** — execute scripts; cooperative interrupt for tight loops
-- **Interactive `input()`** — prompt dialog when the program asks for input
-- **Stdout / stderr** — colored output panel with copy support
-- **Autosave** — buffer saved on edit (debounced) and when the app pauses
-- **Symbol bar** — quick keys for `:`, `()`, `[]`, operators, and more
-- **Editor toggles** — word wrap, line numbers, show whitespace
+- **Embedded CPython 3.13** - real interpreter on-device, not a remote sandbox
+- **Native code editor** - Sora Editor with TextMate Python grammar and JetBrains Mono
+- **Themes** - VS Code Dark, VS Code Light, and Funky (rose accent)
+- **Run / Stop** - execute scripts; cooperative interrupt for tight loops
+- **Interactive `input()`** - prompt dialog when the program asks for input
+- **Stdout / stderr** - colored output panel with copy support
+- **Autosave** - buffer saved on edit (debounced) and when the app pauses
+- **Symbol bar** - quick keys for `:`, `()`, `[]`, operators, and more
+- **Editor toggles** - word wrap, line numbers, show whitespace
 
 ---
 
 ## Screenshots / usage
 
-1. Open the app — sample Fibonacci / squares code loads on first run  
+1. Open the app - sample Fibonacci / squares code loads on first run  
 2. Edit code in the main editor  
 3. Tap **Play** to run  
 4. Expand the **output** panel to read results or errors  

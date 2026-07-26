@@ -427,7 +427,7 @@ fun PyPhoneApp(vm: EditorViewModel = viewModel()) {
                         // selection handles (EditorRenderer.draw). HandleStyleDrop is
                         // center-aligned and 20dp wide, so the left teardrop reaches
                         // ~10dp left of column 0 and the default 2dp right-divider gap
-                        // isn't enough to keep it clear — the gutter then overdraws it.
+                        // isn't enough to keep it clear - the gutter then overdraws it.
                         // Widen the right gap past the teardrop's half-width so the
                         // handle stays visible instead of hiding behind the gutter.
                         val dp = ctx.resources.displayMetrics.density
